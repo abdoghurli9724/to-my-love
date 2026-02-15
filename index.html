@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>غنيلي - خليك معايا</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0b10;
+            --pink-accent: #f83292;
+            --pink-glow: rgba(248, 50, 146, 0.7);
+            --gold: #ffcc00;
+            --gradient-active: linear-gradient(to right, #9133a8, #f83292);
+        }
+
+        body, html {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Cairo', sans-serif;
+            margin: 0; padding: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        /* حاوية صانع الإهداء */
+        .maker-layout {
+            max-width: 420px; margin: auto; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; min-height: 100vh;
+        }
+
+        .step-card {
+            background: #1a1b26; border-radius: 35px; padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .song-option {
+            background: #222332; border-radius: 20px; padding: 15px;
+            display: flex; align-items: center; margin-bottom: 15px;
+            cursor: pointer; border: 2px solid transparent; transition: 0.3s;
+        }
+        .song-option.selected { border-color: var(--pink-accent); background: rgba(248, 50, 146, 0.1); }
+        .song-img { width: 55px; height: 55px; border-radius: 12px; margin-left: 15px; }
+
+        .main-input {
+            width: 100%; background: rgba(0,0,0,0.5); border: 2px solid var(--pink-accent);
+            border-radius: 20px; padding: 15px; color: white;
+            font-family: 'Aref Ruqaa', serif; font-size: 30px; text-align: center; margin-bottom: 15px; box-sizing: border-box;
+        }
+
+        .btn-action {
+            width: 100%; border: none; padding: 18px; border-radius: 50px;
+            color: white; font-size: 18px; font-weight: bold;
+            background: var(--gradient-active); cursor: pointer;
+            box-shadow: 0 5px 15px var(--pink-glow);
+        }
+
+        /* واجهة العرض السينمائية */
+        #view-screen { 
+            display: none; height: 100vh; width: 100%; 
+            overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
+        }
+        #view-screen::-webkit-scrollbar { display: none; }
+
+        section {
+            height: 100vh; width: 100%; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            scroll-snap-align: start; text-align: center; overflow: hidden;
+        }
+
+        /* النجوم */
+        .star {
+            position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; transform: scale(1.2); } }
+
+        .big-name-text {
+            font-family: 'Aref Ruqaa', serif; font-size: 60px;
+            background: linear-gradient(to bottom, #fff, var(--pink-accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            z-index: 2;
+        }
+
+        /* تصميم مشهد الإطار والنجوم الذهبية */
+        .scene-container {
+            position: relative; width: 300px; height: 300px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .light-circle {
+            position: absolute; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            filter: blur(15px);
+        }
+        .c1 { width: 150px; height: 150px; top: 10%; left: 10%; }
+        .c2 { width: 180px; height: 180px; bottom: 10%; right: 5%; }
+
+        .name-capsule {
+            position: relative; padding: 15px 50px;
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 80px; z-index: 5;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .inner-name {
+            font-family: 'Aref Ruqaa', serif; font-size: 45px;
+            color: var(--pink-accent); text-shadow: 0 0 15px var(--pink-glow);
+        }
+
+        .gold-star {
+            position: absolute; color: var(--gold); font-size: 20px;
+            animation: floatUpDown 3s infinite ease-in-out;
+            z-index: 6;
+        }
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(-15px); opacity: 1; }
+        }
+
+        /* الساعة */
+        .pro-clock {
+            width: 240px; height: 240px; border: 4px solid #2a2235; border-radius: 50%;
+            position: relative; background: radial-gradient(circle, #1a1025 0%, #0a0b10 100%);
+            box-shadow: 0 0 40px rgba(145, 51, 168, 0.3);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pro-clock::after {
+            content: ''; position: absolute; width: 10px; height: 10px;
+            background: var(--gold); border-radius: 50%; z-index: 10;
+        }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; border-radius: 10px; z-index: 5; }
+        .hour { width: 7px; height: 55px; background: #b52a7e; animation: rotateHand 480s linear infinite; }
+        .min { width: 5px; height: 80px; background: #f83292; animation: rotateHand 120s linear infinite; }
+        
+        .clock-mark {
+            position: absolute; width: 2px; height: 12px;
+            background: #444; top: 10px; left: 50%;
+            transform-origin: 50% 110px;
+        }
+
+        @keyframes rotateHand {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* الفقاعة العائمة (التي كانت محذوفة) */
+        .bubble-scene {
+            width: 160px; height: 160px; border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle, rgba(248, 50, 146, 0.15), transparent);
+            animation: bubbleFloat 4s infinite ease-in-out;
+            position: relative;
+        }
+        @keyframes bubbleFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-25px) scale(1.05); } }
+
+        #start-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-dark);
+            z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        /* تأثير النبض الكوني للمشهد قبل الأخير */
+.cosmic-glow {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--pink-accent) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseGlow 3s infinite alternate;
+    display: flex; align-items: center; justify-content: center;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.9); box-shadow: 0 0 20px var(--pink-glow); }
+    100% { transform: scale(1.1); box-shadow: 0 0 60px var(--pink-accent); }
+}
+
+/* تصميم الخاتمة الاحترافي الجديد */
+.final-shimmer {
+    background: radial-gradient(circle at center, #1a1b26 0%, #0a0b10 100%);
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+}
+
+.final-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(248, 50, 146, 0.3);
+    padding: 40px 20px;
+    border-radius: 40px;
+    width: 85%;
+    max-width: 350px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(248, 50, 146, 0.1);
+    animation: cardEntrance 1.5s ease-out;
+}
+
+@keyframes cardEntrance {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.thank-you-text {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 20px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.signature {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    color: #888;
+}
+
+.signature b {
+    color: var(--pink-accent);
+    text-shadow: 0 0 10px var(--pink-glow);
+}
+
+/* حركة التوهج الخلفي */
+.glow-orb {
+    position: absolute;
+    width: 300px; height: 300px;
+    background: var(--pink-glow);
+    filter: blur(100px);
+    border-radius: 50%;
+    z-index: 0;
+    animation: orbit 10s infinite linear;
+}
+
+@keyframes orbit {
+    0% { transform: translate(-50%, -50%); }
+    50% { transform: translate(20%, 20%); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+
+/* جزيئات القلوب المتطايرة */
+.floating-heart {
+    position: absolute;
+    color: var(--pink-accent);
+    opacity: 0;
+    animation: flyUp 4s linear infinite;
+}
+
+@keyframes flyUp {
+    0% { transform: translateY(100px) scale(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translateY(-200px) scale(1.5); opacity: 0; }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="maker-layout" id="maker-ui">
+    <div class="step-card">
+        <h2 style="text-align: center; color: var(--gold); font-family: 'Aref Ruqaa';">غنيلي 🎵</h2>
+        
+        <div id="setup-step">
+            <div class="song-option" id="default-song" onclick="selectSong(this, 'خليك معايا', 'https://j.top4top.io/m_369843dq30.mp3')">
+                <img src="https://i.ibb.co/VWV0pY6/amr.jpg" class="song-img">
+                <div style="text-align: right;"><strong>خليك معايا</strong><br><small>عمرو دياب</small></div>
+            </div>
+            <div id="name-box" style="display: none; margin-top: 20px;">
+                <input type="text" id="nameInput" class="main-input" placeholder="اسم المستلم">
+                <button class="btn-action" onclick="generateLink()">إنشاء الرابط ✨</button>
+            </div>
+        </div>
+
+        <div id="result-step" style="display: none; text-align: center;">
+            <p>جاهز للإرسال!</p>
+            <div id="linkOutput" style="background:#000; padding:15px; border-radius:10px; font-size:10px; word-break:break-all; border:1px solid var(--pink-accent); margin-bottom: 15px;"></div>
+            <button class="btn-action" onclick="copyLink()">نسخ الرابط 📋</button>
+        </div>
+    </div>
+</div>
+
+<div id="start-overlay" style="display: none;">
+    <div style="font-size: 80px;">💖</div>
+    <h2 id="greetName" style="font-family: 'Aref Ruqaa';"></h2>
+    <button class="btn-action" style="width: 200px;" onclick="initExperience()">ابدأ الاغنية 🎵</button>
+</div>
+
+<div id="view-screen">
+    <section>
+        <div id="stars-box"></div>
+        <h1 class="big-name-text" id="finalName"></h1>
+        <p style="color: var(--gold); font-family: 'Aref Ruqaa'; font-size: 24px;">يا حلم عمري</p>
+    </section>
+
+    <section>
+        <div class="scene-container">
+            <div class="light-circle c1"></div>
+            <div class="light-circle c2"></div>
+            <div class="gold-star" style="top:20%; left:10%;">✦</div>
+            <div class="gold-star" style="top:40%; right:5%;">✧</div>
+            <div class="gold-star" style="bottom:15%; left:20%;">✦</div>
+            <div class="name-capsule">
+                <div class="inner-name" id="sceneName"></div>
+            </div>
+        </div>
+        <h2 style="font-family: 'Aref Ruqaa'; font-size: 35px; margin-top: 25px;">بيحس بأمان</h2>
+    </section>
+
+    <section>
+        <div class="pro-clock">
+            <div class="clock-mark" style="transform: translateX(-50%) rotate(0deg);"></div>
+            <div class="clock-mark" style="transform: translateX(-50%) rotate(90deg);"></div>
+            <div class="clock-mark" style="transform: translateX(-50%) rotate(180deg);"></div>
+            <div class="clock-mark" style="transform: translateX(-50%) rotate(270deg);"></div>
+
+            <div class="hand hour"></div>
+            <div class="hand min"></div>
+            <div style="position: absolute; bottom: 40px; color: #a555ec; font-family: 'Aref Ruqaa'; font-size: 15px;">خليك معايا...✨</div>
+        </div>
+        <h2 style="font-family: 'Aref Ruqaa'; font-size: 38px; margin-top: 30px;"></h2>
+    </section> <section>
+        <div class="cosmic-glow">
+            <div style="font-size: 80px; filter: drop-shadow(0 0 10px white);">👤</div>
+            <div class="floating-heart" style="left:20%; animation-delay: 0s;">💋</div>
+            <div class="floating-heart" style="right:20%; animation-delay: 1s;">💖</div>
+            <div class="floating-heart" style="top:10%; animation-delay: 2s;">✨</div>
+            <div class="floating-heart" style="top:10%; animation-delay: 3s;">♥️</div>
+        </div>
+        <h2 style="font-family: 'Aref Ruqaa'; font-size: 35px; margin-top: 40px; text-shadow: 0 0 10px var(--pink-glow);">خليك معايا ياحبيبي مهما كان</h2>
+    </section>
+
+    <section class="final-shimmer">
+        <div class="glow-orb"></div>
+
+        <div class="final-card">
+            <div class="thank-you-text">أنتِ كل الحكاية.. ✨</div>
+            
+            <div style="font-size: 50px; margin: 15px 0;">💗🫂</div>
+            
+            <h2 class="big-name-text" style="font-size: 45px; margin: 10px 0;">يا حلم عمري</h2>
+            
+            <p style="font-family: 'Cairo'; color: #eee; line-height: 1.6; font-size: 16px;">
+                "عن ألف قلب اكتفيت بقلبك،<br>وعن ألف حب اخترتك أنتِ."
+            </p>
+
+            <div class="signature">
+                صُنع بكل حُب بواسطة <br>
+                <b>عبدو غرلي</b>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 12px; color: var(--pink-accent); opacity: 0.7; animation: pulse 2s infinite;">
+            حلوتي
+        </div>
+    </section>
+
+</div>
+
+
+<audio id="player" loop></audio>
+
+<script>
+    let songUrl = "";
+
+    function selectSong(el, name, url) {
+        document.querySelectorAll('.song-option').forEach(d => d.classList.remove('selected'));
+        el.classList.add('selected');
+        songUrl = url; 
+        document.getElementById('name-box').style.display = 'block';
+    }
+
+    function generateLink() {
+        const name = document.getElementById('nameInput').value;
+        if (!name) return alert("اكتب الاسم أولاً");
+        const link = window.location.origin + window.location.pathname + "?to=" + encodeURIComponent(name) + "&m=" + encodeURIComponent(songUrl);
+        document.getElementById('setup-step').style.display = 'none';
+        document.getElementById('result-step').style.display = 'block';
+        document.getElementById('linkOutput').innerText = link;
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(document.getElementById('linkOutput').innerText);
+        alert("تم نسخ الرابط!");
+    }
+
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('to')) {
+            const name = decodeURIComponent(params.get('to'));
+            document.getElementById('maker-ui').style.display = 'none';
+            document.getElementById('start-overlay').style.display = 'flex';
+            document.getElementById('view-screen').style.display = 'block';
+            document.getElementById('greetName').innerText = "إلى " + name;
+            document.getElementById('finalName').innerText = name;
+            document.getElementById('sceneName').innerText = name;
+            songUrl = decodeURIComponent(params.get('m')) || "https://j.top4top.io/m_369843dq30.mp3";
+            
+            const box = document.getElementById('stars-box');
+            for(let i=0; i<40; i++) {
+                let s = document.createElement('div');
+                s.className = 'star';
+                s.style.top = Math.random()*100+'%';
+                s.style.left = Math.random()*100+'%';
+                box.appendChild(s);
+            }
+        }
+    };
+
+    function initExperience() {
+        document.getElementById('start-overlay').style.display = 'none';
+        const audio = document.getElementById('player');
+        audio.src = songUrl;
+        audio.play();
+
+        startAutoScroll(); // استدعاء دالة التمرير الذكية هنا
+    }
+
+
+        let current = 0;
+        const sections = document.querySelectorAll('section');
+    function startAutoScroll() {
+        let current = 0;
+        const sections = document.querySelectorAll('section');
+        const viewScreen = document.getElementById('view-screen');
+
+        function scrollNext() {
+            current = (current + 1) % sections.length;
+            
+            viewScreen.scrollTo({
+                top: current * window.innerHeight,
+                behavior: 'smooth'
+            });
+
+            // تحديد وقت الانتظار بناءً على المشهد
+            // إذا كان المشهد الحالي هو الأخير (الخاتمة)
+            let waitTime;
+            if (current === sections.length - 1) {
+                waitTime = 12000; // وقت طويل للخاتمة (12 ثانية مثلاً) قبل العودة للبداية
+            } else if (current === 0) {
+                waitTime = 6000; // وقت المشهد الأول بعد العودة
+            } else {
+                waitTime = 6000; // وقت باقي الانتقالات العادية
+            }
+
+            setTimeout(scrollNext, waitTime);
+        }
+
+        // ابدأ أول انتقال بعد 6 ثوانٍ من التشغيل
+        setTimeout(scrollNext, 6000);
+    }
+
+</script>
+</body>
+</html>
